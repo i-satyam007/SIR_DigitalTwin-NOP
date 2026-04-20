@@ -831,9 +831,9 @@ function Findings({ summary }){
 
         <div className="grid lg:grid-cols-3 gap-5">
           <FindingCard title="Gauss-Newton wins for LS structure"
-            body={`Converged to R₀ = ${fmt(summary.headline.R0,3)} in ${summary.headline.iters} iterations. Newton matched it but needed full Hessians; BFGS got close using only gradients.`}/>
-          <FindingCard title="R₀ lands in the published range"
-            body={`Our estimate of ${fmt(summary.headline.R0,3)} falls within the Delta-variant range of 1.5–2.8 reported in the literature. Independent validation of the fit.`} highlight/>
+            body={<span>Converged to <Tex math={String.raw`R_0 = ${fmt(summary.headline.R0,3)}`}/> in {summary.headline.iters} iterations. Newton matched it but needed full Hessians; BFGS got close using only gradients.</span>}/>
+          <FindingCard title={<span><Tex math={String.raw`R_0`}/> lands in the published range</span>}
+            body={<span>Our estimate of {fmt(summary.headline.R0,3)} falls within the <Tex math={String.raw`\Delta`}/>-variant range of 1.5–2.8 reported in the literature. Independent validation of the fit.</span>} />
           <FindingCard title="Matches SciPy to 6 decimals"
             body={`Our from-scratch Gauss-Newton agrees with scipy.optimize.least_squares (Trust Region Reflective) to a relative error of ${summary.scipy.agreement_rel.toExponential(1)}.`}/>
           <FindingCard title="Step size isn't optional"
@@ -858,10 +858,10 @@ function Findings({ summary }){
     </section>
   );
 }
-function FindingCard({title,body,highlight}){
+function FindingCard({title,body}){
   return (
-    <div className={`glass p-5 ${highlight?'ring-1 ring-accent/40':''}`}>
-      <div className={`font-medium mb-1 ${highlight?'text-accent2':'text-ink'}`}>{title}</div>
+    <div className="glass p-5 group hover:ring-1 hover:ring-accent/40 transition-shadow duration-300 rounded-lg">
+      <div className="font-medium mb-1 text-ink group-hover:text-accent2 transition-colors duration-300">{title}</div>
       <div className="text-sm text-dim">{body}</div>
     </div>
   );

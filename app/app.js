@@ -1500,11 +1500,16 @@ function Findings({
     className: "grid lg:grid-cols-3 gap-5"
   }, /*#__PURE__*/React.createElement(FindingCard, {
     title: "Gauss-Newton wins for LS structure",
-    body: `Converged to R₀ = ${fmt(summary.headline.R0, 3)} in ${summary.headline.iters} iterations. Newton matched it but needed full Hessians; BFGS got close using only gradients.`
+    body: /*#__PURE__*/React.createElement("span", null, "Converged to ", /*#__PURE__*/React.createElement(Tex, {
+      math: String.raw`R_0 = ${fmt(summary.headline.R0, 3)}`
+    }), " in ", summary.headline.iters, " iterations. Newton matched it but needed full Hessians; BFGS got close using only gradients.")
   }), /*#__PURE__*/React.createElement(FindingCard, {
-    title: "R\u2080 lands in the published range",
-    body: `Our estimate of ${fmt(summary.headline.R0, 3)} falls within the Delta-variant range of 1.5–2.8 reported in the literature. Independent validation of the fit.`,
-    highlight: true
+    title: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
+      math: String.raw`R_0`
+    }), " lands in the published range"),
+    body: /*#__PURE__*/React.createElement("span", null, "Our estimate of ", fmt(summary.headline.R0, 3), " falls within the ", /*#__PURE__*/React.createElement(Tex, {
+      math: String.raw`\Delta`
+    }), "-variant range of 1.5\u20132.8 reported in the literature. Independent validation of the fit.")
   }), /*#__PURE__*/React.createElement(FindingCard, {
     title: "Matches SciPy to 6 decimals",
     body: `Our from-scratch Gauss-Newton agrees with scipy.optimize.least_squares (Trust Region Reflective) to a relative error of ${summary.scipy.agreement_rel.toExponential(1)}.`
@@ -1527,13 +1532,12 @@ function Findings({
 }
 function FindingCard({
   title,
-  body,
-  highlight
+  body
 }) {
   return /*#__PURE__*/React.createElement("div", {
-    className: `glass p-5 ${highlight ? 'ring-1 ring-accent/40' : ''}`
+    className: "glass p-5 group hover:ring-1 hover:ring-accent/40 transition-shadow duration-300 rounded-lg"
   }, /*#__PURE__*/React.createElement("div", {
-    className: `font-medium mb-1 ${highlight ? 'text-accent2' : 'text-ink'}`
+    className: "font-medium mb-1 text-ink group-hover:text-accent2 transition-colors duration-300"
   }, title), /*#__PURE__*/React.createElement("div", {
     className: "text-sm text-dim"
   }, body));
