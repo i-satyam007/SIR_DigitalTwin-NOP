@@ -93,7 +93,7 @@ function Hero({ summary, onCta }) {
             <GlanceCard label="Window" value={`${formatDateShort(summary.window.start)} → ${formatDateShort(summary.window.end)}`} sub={`${summary.window.T} days`}/>
             <GlanceCard label="Data Source" value="JHU CSSE" sub="+ OWID + World Bank"/>
             <GlanceCard label="Best Optimizer" value="Gauss-Newton" sub={`Converged in ${summary.headline.iters} iters`}/>
-            <GlanceCard label={<span>Fitted <Tex math="R_0"/></span>} value={fmt(summary.headline.R0, 3)} sub={<span className="whitespace-nowrap">(<Tex math={"\\Delta"}/>: 1.5 – 2.8)</span>} highlight/>
+            <GlanceCard label={<span>Fitted <Tex math="R_0"/></span>} value={fmt(summary.headline.R0, 3)} sub={<span className="whitespace-nowrap">(<Tex math={String.raw`\Delta`} />: 1.5 – 2.8)</span>} highlight/>
             <GlanceCard label="SciPy Agreement" value={<Tex math={fmtSciTex(summary.scipy.agreement_rel)} />} sub="relative error"/>
           </div>
         )}
@@ -296,22 +296,22 @@ function SirExplainer({ wave }) {
           <div className="glass p-6">
             <div className="section-label mb-3">The equations</div>
             <div className="space-y-3 mono text-lg">
-              <EqLine lhs={<Tex math={"\\frac{dS}{dt}"}/>} rhs={<Tex math="-\\frac{\\beta S I}{N}"/>} note="Susceptible individuals decrease as they get infected"/>
-              <EqLine lhs={<Tex math={"\\frac{dI}{dt}"}/>} rhs={<Tex math="+\\frac{\\beta S I}{N} - \\gamma I"/>} note="Infected count rises with new infections and falls with recoveries"/>
-              <EqLine lhs={<Tex math={"\\frac{dR}{dt}"}/>} rhs={<Tex math="+\\gamma I"/>} note="Removed (recovered + deceased) grows monotonically"/>
+              <EqLine lhs={<Tex math={String.raw`\frac{dS}{dt}`}/>} rhs={<Tex math={String.raw`-\frac{\beta S I}{N}`}/>} note="Susceptible individuals decrease as they get infected"/>
+              <EqLine lhs={<Tex math={String.raw`\frac{dI}{dt}`}/>} rhs={<Tex math={String.raw`+\frac{\beta S I}{N} - \gamma I`}/>} note="Infected count rises with new infections and falls with recoveries"/>
+              <EqLine lhs={<Tex math={String.raw`\frac{dR}{dt}`}/>} rhs={<Tex math={String.raw`+\gamma I`}/>} note="Removed (recovered + deceased) grows monotonically"/>
             </div>
 
             <div className="border-t border-edge my-5"/>
 
             <div className="grid grid-cols-3 gap-3">
-              <Badge label={<span><Tex math={"\\beta"}/> (infection rate)</span>} value={fmt(gnFit.beta,4)} color="#ef4444"/>
-              <Badge label={<span><Tex math={"\\gamma"}/> (recovery rate)</span>} value={fmt(gnFit.gamma,4)} color="#34d399"/>
-              <Badge label={<Tex math="R_0 = \\beta/\\gamma" />} value={fmt(gnFit.R0,3)} color="#38bdf8" big/>
+              <Badge label={<span><Tex math={String.raw`\beta`}/> (infection rate)</span>} value={fmt(gnFit.beta,4)} color="#ef4444"/>
+              <Badge label={<span><Tex math={String.raw`\gamma`}/> (recovery rate)</span>} value={fmt(gnFit.gamma,4)} color="#34d399"/>
+              <Badge label={<Tex math={String.raw`R_0 = \beta/\gamma`} />} value={fmt(gnFit.R0,3)} color="#38bdf8" big/>
             </div>
             <div className="text-xs text-dim mt-4">
               The basic reproduction number <span className="text-ink mono"><Tex math={`R_0 = \\beta/\\gamma \\approx ${fmt(gnFit.R0,2)}`} /></span> means
               each infected person transmits to <span className="text-ink mono">~{fmt(gnFit.R0,1)}</span> others on average.
-              This matches published estimates for the <Tex math={"\\Delta"}/> variant (1.5 – 2.8).
+              This matches published estimates for the <Tex math={String.raw`\Delta`}/> variant (1.5 – 2.8).
             </div>
           </div>
         </div>
