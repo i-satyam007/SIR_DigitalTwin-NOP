@@ -1535,9 +1535,9 @@ function FindingCard({
   body
 }) {
   return /*#__PURE__*/React.createElement("div", {
-    className: "glass p-5 group hover:ring-1 hover:ring-accent/40 transition-shadow duration-300 rounded-lg"
+    className: "glass p-5 rounded-lg finding-card"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "font-medium mb-1 text-ink group-hover:text-accent2 transition-colors duration-300"
+    className: "font-medium mb-1 text-ink fc-title transition-colors"
   }, title), /*#__PURE__*/React.createElement("div", {
     className: "text-sm text-dim"
   }, body));
