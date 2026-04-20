@@ -129,7 +129,7 @@ function Hero({
     className: "grid grid-cols-2 md:grid-cols-5 gap-3 mt-10"
   }, /*#__PURE__*/React.createElement(GlanceCard, {
     label: "Window",
-    value: `${summary.window.start} → ${summary.window.end}`,
+    value: `${formatDateShort(summary.window.start)} → ${formatDateShort(summary.window.end)}`,
     sub: `${summary.window.T} days`
   }), /*#__PURE__*/React.createElement(GlanceCard, {
     label: "Data Source",
@@ -144,8 +144,10 @@ function Hero({
       math: "R_0"
     })),
     value: fmt(summary.headline.R0, 3),
-    sub: /*#__PURE__*/React.createElement("span", null, "(", /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\Delta"
+    sub: /*#__PURE__*/React.createElement("span", {
+      className: "whitespace-nowrap"
+    }, "(", /*#__PURE__*/React.createElement(Tex, {
+      math: "\\Delta"
     }), ": 1.5 \u2013 2.8)"),
     highlight: true
   }), /*#__PURE__*/React.createElement(GlanceCard, {
@@ -426,7 +428,7 @@ function SirExplainer({
     className: "space-y-3 mono text-lg"
   }, /*#__PURE__*/React.createElement(EqLine, {
     lhs: /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\frac{dS}{dt}"
+      math: "\\frac{dS}{dt}"
     }),
     rhs: /*#__PURE__*/React.createElement(Tex, {
       math: "-\\\\frac{\\\\beta S I}{N}"
@@ -434,7 +436,7 @@ function SirExplainer({
     note: "Susceptible individuals decrease as they get infected"
   }), /*#__PURE__*/React.createElement(EqLine, {
     lhs: /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\frac{dI}{dt}"
+      math: "\\frac{dI}{dt}"
     }),
     rhs: /*#__PURE__*/React.createElement(Tex, {
       math: "+\\\\frac{\\\\beta S I}{N} - \\\\gamma I"
@@ -442,7 +444,7 @@ function SirExplainer({
     note: "Infected count rises with new infections and falls with recoveries"
   }), /*#__PURE__*/React.createElement(EqLine, {
     lhs: /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\frac{dR}{dt}"
+      math: "\\frac{dR}{dt}"
     }),
     rhs: /*#__PURE__*/React.createElement(Tex, {
       math: "+\\\\gamma I"
@@ -454,13 +456,13 @@ function SirExplainer({
     className: "grid grid-cols-3 gap-3"
   }, /*#__PURE__*/React.createElement(Badge, {
     label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\beta"
+      math: "\\beta"
     }), " (infection rate)"),
     value: fmt(gnFit.beta, 4),
     color: "#ef4444"
   }), /*#__PURE__*/React.createElement(Badge, {
     label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\gamma"
+      math: "\\gamma"
     }), " (recovery rate)"),
     value: fmt(gnFit.gamma, 4),
     color: "#34d399"
@@ -480,7 +482,7 @@ function SirExplainer({
   })), " means each infected person transmits to ", /*#__PURE__*/React.createElement("span", {
     className: "text-ink mono"
   }, "~", fmt(gnFit.R0, 1)), " others on average. This matches published estimates for the ", /*#__PURE__*/React.createElement(Tex, {
-    math: "\\\\Delta"
+    math: "\\Delta"
   }), " variant (1.5 \u2013 2.8).")))));
 }
 function EqLine({
@@ -956,13 +958,13 @@ function CalibrationLab({
     className: "grid grid-cols-2 gap-3"
   }, /*#__PURE__*/React.createElement(Badge, {
     label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\beta"
+      math: "\\beta"
     }), " (infection)"),
     value: fmt(currentFrame?.beta, 4),
     color: "#ef4444"
   }), /*#__PURE__*/React.createElement(Badge, {
     label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
-      math: "\\\\gamma"
+      math: "\\gamma"
     }), " (recovery)"),
     value: fmt(currentFrame?.gamma, 4),
     color: "#34d399"
