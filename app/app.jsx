@@ -35,7 +35,7 @@ async function fetchAllData() {
    COLOR + HELPERS
    ═══════════════════════════════════════════════════════════════════ */
 const METHOD_COLORS = {
-  GD: "#f97316", Newton: "#38bdf8", BFGS: "#34d399",
+  GD: "#f97316", Newton: "#ef4444", BFGS: "#34d399",
   GN: "#a78bfa", Penalty: "#facc15", Barrier: "#ec4899",
 };
 const METHOD_FULL = {
@@ -45,6 +45,23 @@ const METHOD_FULL = {
 };
 const fmt = (x, d = 4) => (x == null ? "—" : Number(x).toFixed(d));
 const fmtInt = (x) => (x == null ? "—" : Math.round(x).toLocaleString());
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const formatDateShort = (dStr) => {
+  if (!dStr) return '';
+  const [y, m, d] = dStr.split('-');
+  return `${parseInt(d, 10)} ${MONTHS[parseInt(m, 10)-1]}`;
+};
+const formatDateFull = (dStr) => {
+  if (!dStr) return '';
+  const [y, m, d] = dStr.split('-');
+  return `${parseInt(d, 10)} ${MONTHS[parseInt(m, 10)-1]} ${y}`;
+};
+const Tex = ({ math }) => <span dangerouslySetInnerHTML={{ __html: window.katex.renderToString(math, { throwOnError: false }) }} />;
+const fmtSciTex = (num) => {
+  if (num == null) return '';
+  const [base, exp] = Number(num).toExponential(1).split('e');
+  return `${base} \\times 10^{${parseInt(exp, 10)}}`;
+};
 const fmtMil = (x) => (x == null ? "—" : (x/1e6).toFixed(2) + " M");
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -76,8 +93,8 @@ function Hero({ summary, onCta }) {
             <GlanceCard label="Window" value={`${summary.window.start} → ${summary.window.end}`} sub={`${summary.window.T} days`}/>
             <GlanceCard label="Data Source" value="JHU CSSE" sub="+ OWID + World Bank"/>
             <GlanceCard label="Best Optimizer" value="Gauss-Newton" sub={`Converged in ${summary.headline.iters} iters`}/>
-            <GlanceCard label="Fitted R₀" value={fmt(summary.headline.R0, 3)} sub="(Delta: 1.5 – 2.8)" highlight/>
-            <GlanceCard label="SciPy Agreement" value={summary.scipy.agreement_rel.toExponential(1)} sub="relative error"/>
+            <GlanceCard label={<span>Fitted <Tex math="R_0"/></span>} value={fmt(summary.headline.R0, 3)} sub={<span>(<Tex math="\\Delta"/>: 1.5 – 2.8)</span>} highlight/>
+            <GlanceCard label="SciPy Agreement" value={<Tex math={fmtSciTex(summary.scipy.agreement_rel)} />} sub="relative error"/>
           </div>
         )}
 
@@ -103,7 +120,7 @@ function Hero({ summary, onCta }) {
 function GlanceCard({ label, value, sub, highlight }) {
   return (
     <div className={`glass px-4 py-3 smooth-appear ${highlight ? 'ring-1 ring-accent/40' : ''}`}>
-      <div className="text-[10px] text-faint uppercase tracking-wider mb-1">{label}</div>
+      <div className="text-xs text-faint uppercase tracking-wider mb-1">{label}</div>
       <div className={`font-semibold text-lg ${highlight ? 'text-accent2' : 'text-ink'} mono`}>{value}</div>
       <div className="text-[11px] text-dim mt-0.5">{sub}</div>
     </div>
@@ -245,8 +262,8 @@ function SirExplainer({ wave }) {
           <div className="glass overflow-hidden relative p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-[10px] text-faint uppercase tracking-wider">Stylized population</div>
-                <div className="text-ink font-medium">Day {di+1} / {totalDays} · {wave.dates[di]}</div>
+                <div className="text-xs text-faint uppercase tracking-wider">Stylized population</div>
+                <div className="text-ink font-medium">Day {di+1} / {totalDays} · {formatDateFull(wave.dates[di])}</div>
               </div>
               <div className="flex gap-2">
                 <button className={`btn ${playing?'btn-active':'btn-ghost'}`} onClick={()=>setPlaying(p=>!p)}>
@@ -272,29 +289,29 @@ function SirExplainer({ wave }) {
                 <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-remv"/><span className="text-dim">Removed</span><span className="mono ml-auto text-ink">{fmtMil(R_now)}</span></div>
               </div>
             </div>
-            <div className="text-[10px] text-faint mt-2 italic">The animation is a visual expression of the fitted SIR proportions. It is not a separate scientific simulation.</div>
+            <div className="text-xs text-faint mt-2 italic">The animation is a visual expression of the fitted SIR proportions. It is not a separate scientific simulation.</div>
           </div>
 
           {/* Equations panel */}
           <div className="glass p-6">
             <div className="section-label mb-3">The equations</div>
             <div className="space-y-3 mono text-lg">
-              <EqLine lhs="dS/dt" rhs="−β · S · I / N" note="Susceptible individuals decrease as they get infected"/>
-              <EqLine lhs="dI/dt" rhs="+β · S · I / N − γ · I" note="Infected count rises with new infections and falls with recoveries"/>
-              <EqLine lhs="dR/dt" rhs="+γ · I" note="Removed (recovered + deceased) grows monotonically"/>
+              <EqLine lhs={<Tex math="\\frac{dS}{dt}"/>} rhs={<Tex math="-\\frac{\\beta S I}{N}"/>} note="Susceptible individuals decrease as they get infected"/>
+              <EqLine lhs={<Tex math="\\frac{dI}{dt}"/>} rhs={<Tex math="+\\frac{\\beta S I}{N} - \\gamma I"/>} note="Infected count rises with new infections and falls with recoveries"/>
+              <EqLine lhs={<Tex math="\\frac{dR}{dt}"/>} rhs={<Tex math="+\\gamma I"/>} note="Removed (recovered + deceased) grows monotonically"/>
             </div>
 
             <div className="border-t border-edge my-5"/>
 
             <div className="grid grid-cols-3 gap-3">
-              <Badge label="β (infection rate)" value={fmt(gnFit.beta,4)} color="#ef4444"/>
-              <Badge label="γ (recovery rate)" value={fmt(gnFit.gamma,4)} color="#34d399"/>
-              <Badge label="R₀ = β/γ" value={fmt(gnFit.R0,3)} color="#38bdf8" big/>
+              <Badge label={<span><Tex math="\\beta"/> (infection rate)</span>} value={fmt(gnFit.beta,4)} color="#ef4444"/>
+              <Badge label={<span><Tex math="\\gamma"/> (recovery rate)</span>} value={fmt(gnFit.gamma,4)} color="#34d399"/>
+              <Badge label={<Tex math="R_0 = \\beta/\\gamma" />} value={fmt(gnFit.R0,3)} color="#38bdf8" big/>
             </div>
             <div className="text-xs text-dim mt-4">
-              The basic reproduction number <span className="text-ink mono">R₀ = β/γ ≈ {fmt(gnFit.R0,2)}</span> means
+              The basic reproduction number <span className="text-ink mono"><Tex math={`R_0 = \\beta/\\gamma \\approx ${fmt(gnFit.R0,2)}`} /></span> means
               each infected person transmits to <span className="text-ink mono">~{fmt(gnFit.R0,1)}</span> others on average.
-              This matches published estimates for the Delta variant (1.5 – 2.8).
+              This matches published estimates for the <Tex math="\\Delta"/> variant (1.5 – 2.8).
             </div>
           </div>
         </div>
@@ -313,7 +330,7 @@ function EqLine({lhs,rhs,note}){
 function Badge({label,value,color,big}){
   return (
     <div className="glass-hard px-3 py-2.5" style={{borderColor: color+'30'}}>
-      <div className="text-[10px] text-faint uppercase tracking-wider mb-1">{label}</div>
+      <div className="text-xs text-faint uppercase tracking-wider mb-1">{label}</div>
       <div className={`mono font-semibold ${big?'text-2xl':'text-lg'}`} style={{color}}>{value}</div>
     </div>
   );
@@ -353,15 +370,15 @@ function DataPipeline({ wave }) {
           <div className="lg:col-span-3 glass p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-[10px] text-faint uppercase tracking-wider">India second wave · 1 Mar – 15 Jun 2021</div>
-                <div className="text-ink font-medium">Peak active: {fmtMil(wave?.peak_I)} on {wave?.peak_I_date}</div>
+                <div className="text-xs text-faint uppercase tracking-wider">India second wave · 1 Mar – 15 Jun 2021</div>
+                <div className="text-ink font-medium">Peak active: {fmtMil(wave?.peak_I)} on {formatDateFull(wave?.peak_I_date)}</div>
               </div>
               <div className="text-[11px] text-dim">T = {wave?.dates?.length} days</div>
             </div>
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={chartData} margin={{top:5,right:5,left:0,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e2f55" opacity={0.6}/>
-                <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:10,fill:'#8ea2c6'}} tickFormatter={(d)=>d.slice(5)}/>
+                <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:10,fill:'#8ea2c6'}} tickFormatter={(d)=>formatDateShort(d)}/>
                 <YAxis yAxisId="L" stroke="#4d5f82" tick={{fontSize:10,fill:'#8ea2c6'}} tickFormatter={(v)=>(v/1e6).toFixed(1)+'M'}/>
                 <YAxis yAxisId="R" orientation="right" stroke="#4d5f82" tick={{fontSize:10,fill:'#8ea2c6'}} tickFormatter={(v)=>(v/1e6).toFixed(0)+'M'}/>
                 <Tooltip contentStyle={{background:'#0b1730',border:'1px solid #1e2f55',borderRadius:8,fontSize:12}}
@@ -491,7 +508,7 @@ function CalibrationLab({ wave, paths, summary }){
               style={method===m ? {background:METHOD_COLORS[m], color:'#061220'} : {}}>
               <span className="w-2 h-2 rounded-full" style={{background:METHOD_COLORS[m]}}/>
               {METHOD_FULL[m]}
-              <span className="mono text-[10px] opacity-70 ml-1">({paths[m].n_iters} iter)</span>
+              <span className="mono text-xs opacity-70 ml-1">({paths[m].n_iters} iter)</span>
             </button>
           ))}
         </div>
@@ -502,7 +519,7 @@ function CalibrationLab({ wave, paths, summary }){
           <div className="lg:col-span-8 glass p-5 relative">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-[10px] text-faint uppercase tracking-wider">Fit vs observed</div>
+                <div className="text-xs text-faint uppercase tracking-wider">Fit vs observed</div>
                 <div className="text-ink font-medium">
                   {METHOD_FULL[method]}
                   <span className="text-dim text-sm ml-2">iter {currentFrame?.iter ?? 0}</span>
@@ -521,7 +538,7 @@ function CalibrationLab({ wave, paths, summary }){
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={fitData} margin={{top:5,right:5,left:0,bottom:5}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e2f55"/>
-                    <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(d)=>d.slice(5)} interval={15}/>
+                    <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(d)=>formatDateShort(d)} interval={15}/>
                     <YAxis stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(v)=>(v/1e6).toFixed(1)+'M'}/>
                     <Tooltip contentStyle={{background:'#0b1730',border:'1px solid #1e2f55',borderRadius:8,fontSize:11}} formatter={(v)=>v==null?'—':fmtMil(v)}/>
                     <Line dataKey="I_obs" stroke="#38bdf8" strokeWidth={2} dot={false} isAnimationActive={false} name="I observed"/>
@@ -534,7 +551,7 @@ function CalibrationLab({ wave, paths, summary }){
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={fitData} margin={{top:5,right:5,left:0,bottom:5}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e2f55"/>
-                    <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(d)=>d.slice(5)} interval={15}/>
+                    <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(d)=>formatDateShort(d)} interval={15}/>
                     <YAxis stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(v)=>(v/1e6).toFixed(0)+'M'}/>
                     <Tooltip contentStyle={{background:'#0b1730',border:'1px solid #1e2f55',borderRadius:8,fontSize:11}} formatter={(v)=>v==null?'—':fmtMil(v)}/>
                     <Line dataKey="R_obs" stroke="#38bdf8" strokeWidth={2} dot={false} isAnimationActive={false} name="R observed"/>
@@ -550,7 +567,7 @@ function CalibrationLab({ wave, paths, summary }){
                 type="range" min={0} max={Math.max(0,nFrames-1)} value={iterIdx}
                 onChange={(e)=>{setIterIdx(Number(e.target.value)); setPlaying(false);}}
                 className="w-full accent-accent"/>
-              <div className="flex justify-between text-[10px] text-faint mt-1">
+              <div className="flex justify-between text-xs text-faint mt-1">
                 <span>iter 0</span>
                 <span className="mono">Frame {iterIdx+1} / {nFrames}</span>
                 <span>iter {path.n_iters}</span>
@@ -561,12 +578,12 @@ function CalibrationLab({ wave, paths, summary }){
           {/* RIGHT TOP: parameter cards */}
           <div className="lg:col-span-4 space-y-4">
             <div className="glass p-5">
-              <div className="text-[10px] text-faint uppercase tracking-wider mb-3">Live parameter estimates</div>
+              <div className="text-xs text-faint uppercase tracking-wider mb-3">Live parameter estimates</div>
               <div className="grid grid-cols-2 gap-3">
-                <Badge label="β (infection)" value={fmt(currentFrame?.beta,4)} color="#ef4444"/>
-                <Badge label="γ (recovery)" value={fmt(currentFrame?.gamma,4)} color="#34d399"/>
-                <Badge label="N_eff" value={currentFrame?.N_eff ? fmtMil(currentFrame.N_eff) : '—'} color="#60a5fa"/>
-                <Badge label="R₀ = β/γ" value={fmt(currentFrame?.R0,3)} color="#38bdf8" big/>
+                <Badge label={<span><Tex math="\\beta"/> (infection)</span>} value={fmt(currentFrame?.beta,4)} color="#ef4444"/>
+                <Badge label={<span><Tex math="\\gamma"/> (recovery)</span>} value={fmt(currentFrame?.gamma,4)} color="#34d399"/>
+                <Badge label={<Tex math="N_{\\text{eff}}"/>} value={currentFrame?.N_eff ? fmtMil(currentFrame.N_eff) : '—'} color="#60a5fa"/>
+                <Badge label={<Tex math="R_0 = \\beta/\\gamma" />} value={fmt(currentFrame?.R0,3)} color="#38bdf8" big/>
               </div>
               <div className="text-xs text-dim mt-3 mono">
                 f(x) = <span className="text-ink">{fmt(currentFrame?.f,4)}</span>
@@ -575,7 +592,7 @@ function CalibrationLab({ wave, paths, summary }){
 
             {/* Convergence */}
             <div className="glass p-5">
-              <div className="text-[10px] text-faint uppercase tracking-wider mb-2">Convergence</div>
+              <div className="text-xs text-faint uppercase tracking-wider mb-2">Convergence</div>
               <ResponsiveContainer width="100%" height={140}>
                 <LineChart data={convData.slice(0, Math.max(2, Math.round((iterIdx/(nFrames-1 || 1)) * convData.length)))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e2f55"/>
@@ -593,7 +610,7 @@ function CalibrationLab({ wave, paths, summary }){
           <div className="lg:col-span-12 glass p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-[10px] text-faint uppercase tracking-wider">Parameter-space trajectory</div>
+                <div className="text-xs text-faint uppercase tracking-wider">Parameter-space trajectory</div>
                 <div className="text-ink font-medium">β – γ plane (all methods overlaid)</div>
               </div>
               <div className="text-xs text-dim">
@@ -684,7 +701,7 @@ function FailureExplorer({ failures, windows }){
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Failure cases */}
           <div className="glass p-5">
-            <div className="text-[10px] text-faint uppercase tracking-wider mb-3">Failure case explorer</div>
+            <div className="text-xs text-faint uppercase tracking-wider mb-3">Failure case explorer</div>
             <div className="flex flex-wrap gap-2 mb-3">
               {cases.map(k=>(
                 <button key={k} className={`btn ${k===caseKey?'btn-active':'btn-ghost'}`} onClick={()=>setCaseKey(k)}>
@@ -716,7 +733,7 @@ function FailureExplorer({ failures, windows }){
 
           {/* Window robustness */}
           <div className="glass p-5">
-            <div className="text-[10px] text-faint uppercase tracking-wider mb-3">Time-window robustness</div>
+            <div className="text-xs text-faint uppercase tracking-wider mb-3">Time-window robustness</div>
             <div className="flex flex-wrap gap-2 mb-3">
               {windows?.map((w,i)=>(
                 <button key={i} className={`btn ${i===windowIdx?'btn-active':'btn-ghost'}`} onClick={()=>setWindowIdx(i)}>
@@ -732,7 +749,7 @@ function FailureExplorer({ failures, windows }){
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={winData} margin={{top:5,right:5,left:0,bottom:5}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e2f55"/>
-                    <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(d)=>d.slice(5)} interval={15}/>
+                    <XAxis dataKey="date" stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(d)=>formatDateShort(d)} interval={15}/>
                     <YAxis stroke="#4d5f82" tick={{fontSize:9,fill:'#8ea2c6'}} tickFormatter={(v)=>(v/1e6).toFixed(1)+'M'}/>
                     <Tooltip contentStyle={{background:'#0b1730',border:'1px solid #1e2f55',borderRadius:8,fontSize:11}} formatter={(v)=>fmtMil(v)}/>
                     <Line dataKey="I_obs" stroke="#38bdf8" strokeWidth={2} dot={false} isAnimationActive={false} name="Observed I"/>
@@ -743,7 +760,7 @@ function FailureExplorer({ failures, windows }){
                   <div><span className="text-faint">β</span> <span className="text-ink">{fmt(activeWin.beta,4)}</span></div>
                   <div><span className="text-faint">γ</span> <span className="text-ink">{fmt(activeWin.gamma,4)}</span></div>
                   <div><span className="text-faint">N_eff</span> <span className="text-ink">{fmtMil(activeWin.N_eff)}</span></div>
-                  <div><span className="text-faint">R₀</span> <span className="text-accent2">{fmt(activeWin.R0,3)}</span></div>
+                  <div><span className="text-faint"><Tex math="R_0" /></span> <span className="text-accent2">{fmt(activeWin.R0,3)}</span></div>
                 </div>
               </>
             )}
@@ -779,7 +796,7 @@ function AllMethodsConvergence({ paths }){
       <div className="max-w-7xl mx-auto glass p-5">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-[10px] text-faint uppercase tracking-wider">All methods overlaid</div>
+            <div className="text-xs text-faint uppercase tracking-wider">All methods overlaid</div>
             <div className="text-ink font-medium">Objective f(x) vs iteration — same start, same data</div>
           </div>
           <div className="text-xs text-dim">log scale · fewer iterations = faster convergence</div>

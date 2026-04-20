@@ -55,7 +55,7 @@ async function fetchAllData() {
    ═══════════════════════════════════════════════════════════════════ */
 const METHOD_COLORS = {
   GD: "#f97316",
-  Newton: "#38bdf8",
+  Newton: "#ef4444",
   BFGS: "#34d399",
   GN: "#a78bfa",
   Penalty: "#facc15",
@@ -71,6 +71,31 @@ const METHOD_FULL = {
 };
 const fmt = (x, d = 4) => x == null ? "—" : Number(x).toFixed(d);
 const fmtInt = x => x == null ? "—" : Math.round(x).toLocaleString();
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const formatDateShort = dStr => {
+  if (!dStr) return '';
+  const [y, m, d] = dStr.split('-');
+  return `${parseInt(d, 10)} ${MONTHS[parseInt(m, 10) - 1]}`;
+};
+const formatDateFull = dStr => {
+  if (!dStr) return '';
+  const [y, m, d] = dStr.split('-');
+  return `${parseInt(d, 10)} ${MONTHS[parseInt(m, 10) - 1]} ${y}`;
+};
+const Tex = ({
+  math
+}) => /*#__PURE__*/React.createElement("span", {
+  dangerouslySetInnerHTML: {
+    __html: window.katex.renderToString(math, {
+      throwOnError: false
+    })
+  }
+});
+const fmtSciTex = num => {
+  if (num == null) return '';
+  const [base, exp] = Number(num).toExponential(1).split('e');
+  return `${base} \\times 10^{${parseInt(exp, 10)}}`;
+};
 const fmtMil = x => x == null ? "—" : (x / 1e6).toFixed(2) + " M";
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -115,13 +140,19 @@ function Hero({
     value: "Gauss-Newton",
     sub: `Converged in ${summary.headline.iters} iters`
   }), /*#__PURE__*/React.createElement(GlanceCard, {
-    label: "Fitted R\u2080",
+    label: /*#__PURE__*/React.createElement("span", null, "Fitted ", /*#__PURE__*/React.createElement(Tex, {
+      math: "R_0"
+    })),
     value: fmt(summary.headline.R0, 3),
-    sub: "(Delta: 1.5 \u2013 2.8)",
+    sub: /*#__PURE__*/React.createElement("span", null, "(", /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\Delta"
+    }), ": 1.5 \u2013 2.8)"),
     highlight: true
   }), /*#__PURE__*/React.createElement(GlanceCard, {
     label: "SciPy Agreement",
-    value: summary.scipy.agreement_rel.toExponential(1),
+    value: /*#__PURE__*/React.createElement(Tex, {
+      math: fmtSciTex(summary.scipy.agreement_rel)
+    }),
     sub: "relative error"
   })), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap gap-3 mt-10"
@@ -148,7 +179,7 @@ function GlanceCard({
   return /*#__PURE__*/React.createElement("div", {
     className: `glass px-4 py-3 smooth-appear ${highlight ? 'ring-1 ring-accent/40' : ''}`
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider mb-1"
+    className: "text-xs text-faint uppercase tracking-wider mb-1"
   }, label), /*#__PURE__*/React.createElement("div", {
     className: `font-semibold text-lg ${highlight ? 'text-accent2' : 'text-ink'} mono`
   }, value), /*#__PURE__*/React.createElement("div", {
@@ -318,10 +349,10 @@ function SirExplainer({
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between mb-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider"
+    className: "text-xs text-faint uppercase tracking-wider"
   }, "Stylized population"), /*#__PURE__*/React.createElement("div", {
     className: "text-ink font-medium"
-  }, "Day ", di + 1, " / ", totalDays, " \xB7 ", wave.dates[di])), /*#__PURE__*/React.createElement("div", {
+  }, "Day ", di + 1, " / ", totalDays, " \xB7 ", formatDateFull(wave.dates[di]))), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-2"
   }, /*#__PURE__*/React.createElement("button", {
     className: `btn ${playing ? 'btn-active' : 'btn-ghost'}`,
@@ -386,7 +417,7 @@ function SirExplainer({
   }, "Removed"), /*#__PURE__*/React.createElement("span", {
     className: "mono ml-auto text-ink"
   }, fmtMil(R_now))))), /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint mt-2 italic"
+    className: "text-xs text-faint mt-2 italic"
   }, "The animation is a visual expression of the fitted SIR proportions. It is not a separate scientific simulation.")), /*#__PURE__*/React.createElement("div", {
     className: "glass p-6"
   }, /*#__PURE__*/React.createElement("div", {
@@ -394,31 +425,49 @@ function SirExplainer({
   }, "The equations"), /*#__PURE__*/React.createElement("div", {
     className: "space-y-3 mono text-lg"
   }, /*#__PURE__*/React.createElement(EqLine, {
-    lhs: "dS/dt",
-    rhs: "\u2212\u03B2 \xB7 S \xB7 I / N",
+    lhs: /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\frac{dS}{dt}"
+    }),
+    rhs: /*#__PURE__*/React.createElement(Tex, {
+      math: "-\\\\frac{\\\\beta S I}{N}"
+    }),
     note: "Susceptible individuals decrease as they get infected"
   }), /*#__PURE__*/React.createElement(EqLine, {
-    lhs: "dI/dt",
-    rhs: "+\u03B2 \xB7 S \xB7 I / N \u2212 \u03B3 \xB7 I",
+    lhs: /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\frac{dI}{dt}"
+    }),
+    rhs: /*#__PURE__*/React.createElement(Tex, {
+      math: "+\\\\frac{\\\\beta S I}{N} - \\\\gamma I"
+    }),
     note: "Infected count rises with new infections and falls with recoveries"
   }), /*#__PURE__*/React.createElement(EqLine, {
-    lhs: "dR/dt",
-    rhs: "+\u03B3 \xB7 I",
+    lhs: /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\frac{dR}{dt}"
+    }),
+    rhs: /*#__PURE__*/React.createElement(Tex, {
+      math: "+\\\\gamma I"
+    }),
     note: "Removed (recovered + deceased) grows monotonically"
   })), /*#__PURE__*/React.createElement("div", {
     className: "border-t border-edge my-5"
   }), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-3 gap-3"
   }, /*#__PURE__*/React.createElement(Badge, {
-    label: "\u03B2 (infection rate)",
+    label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\beta"
+    }), " (infection rate)"),
     value: fmt(gnFit.beta, 4),
     color: "#ef4444"
   }), /*#__PURE__*/React.createElement(Badge, {
-    label: "\u03B3 (recovery rate)",
+    label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\gamma"
+    }), " (recovery rate)"),
     value: fmt(gnFit.gamma, 4),
     color: "#34d399"
   }), /*#__PURE__*/React.createElement(Badge, {
-    label: "R\u2080 = \u03B2/\u03B3",
+    label: /*#__PURE__*/React.createElement(Tex, {
+      math: "R_0 = \\\\beta/\\\\gamma"
+    }),
     value: fmt(gnFit.R0, 3),
     color: "#38bdf8",
     big: true
@@ -426,9 +475,13 @@ function SirExplainer({
     className: "text-xs text-dim mt-4"
   }, "The basic reproduction number ", /*#__PURE__*/React.createElement("span", {
     className: "text-ink mono"
-  }, "R\u2080 = \u03B2/\u03B3 \u2248 ", fmt(gnFit.R0, 2)), " means each infected person transmits to ", /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Tex, {
+    math: `R_0 = \\beta/\\gamma \\approx ${fmt(gnFit.R0, 2)}`
+  })), " means each infected person transmits to ", /*#__PURE__*/React.createElement("span", {
     className: "text-ink mono"
-  }, "~", fmt(gnFit.R0, 1)), " others on average. This matches published estimates for the Delta variant (1.5 \u2013 2.8).")))));
+  }, "~", fmt(gnFit.R0, 1)), " others on average. This matches published estimates for the ", /*#__PURE__*/React.createElement(Tex, {
+    math: "\\\\Delta"
+  }), " variant (1.5 \u2013 2.8).")))));
 }
 function EqLine({
   lhs,
@@ -457,7 +510,7 @@ function Badge({
       borderColor: color + '30'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider mb-1"
+    className: "text-xs text-faint uppercase tracking-wider mb-1"
   }, label), /*#__PURE__*/React.createElement("div", {
     className: `mono font-semibold ${big ? 'text-2xl' : 'text-lg'}`,
     style: {
@@ -518,10 +571,10 @@ function DataPipeline({
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between mb-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider"
+    className: "text-xs text-faint uppercase tracking-wider"
   }, "India second wave \xB7 1 Mar \u2013 15 Jun 2021"), /*#__PURE__*/React.createElement("div", {
     className: "text-ink font-medium"
-  }, "Peak active: ", fmtMil(wave?.peak_I), " on ", wave?.peak_I_date)), /*#__PURE__*/React.createElement("div", {
+  }, "Peak active: ", fmtMil(wave?.peak_I), " on ", formatDateFull(wave?.peak_I_date))), /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-dim"
   }, "T = ", wave?.dates?.length, " days")), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
@@ -545,7 +598,7 @@ function DataPipeline({
       fontSize: 10,
       fill: '#8ea2c6'
     },
-    tickFormatter: d => d.slice(5)
+    tickFormatter: d => formatDateShort(d)
   }), /*#__PURE__*/React.createElement(YAxis, {
     yAxisId: "L",
     stroke: "#4d5f82",
@@ -743,7 +796,7 @@ function CalibrationLab({
       background: METHOD_COLORS[m]
     }
   }), METHOD_FULL[m], /*#__PURE__*/React.createElement("span", {
-    className: "mono text-[10px] opacity-70 ml-1"
+    className: "mono text-xs opacity-70 ml-1"
   }, "(", paths[m].n_iters, " iter)")))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 lg:grid-cols-12 gap-6"
   }, /*#__PURE__*/React.createElement("div", {
@@ -751,7 +804,7 @@ function CalibrationLab({
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between mb-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider"
+    className: "text-xs text-faint uppercase tracking-wider"
   }, "Fit vs observed"), /*#__PURE__*/React.createElement("div", {
     className: "text-ink font-medium"
   }, METHOD_FULL[method], /*#__PURE__*/React.createElement("span", {
@@ -792,7 +845,7 @@ function CalibrationLab({
       fontSize: 9,
       fill: '#8ea2c6'
     },
-    tickFormatter: d => d.slice(5),
+    tickFormatter: d => formatDateShort(d),
     interval: 15
   }), /*#__PURE__*/React.createElement(YAxis, {
     stroke: "#4d5f82",
@@ -846,7 +899,7 @@ function CalibrationLab({
       fontSize: 9,
       fill: '#8ea2c6'
     },
-    tickFormatter: d => d.slice(5),
+    tickFormatter: d => formatDateShort(d),
     interval: 15
   }), /*#__PURE__*/React.createElement(YAxis, {
     stroke: "#4d5f82",
@@ -890,7 +943,7 @@ function CalibrationLab({
     },
     className: "w-full accent-accent"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between text-[10px] text-faint mt-1"
+    className: "flex justify-between text-xs text-faint mt-1"
   }, /*#__PURE__*/React.createElement("span", null, "iter 0"), /*#__PURE__*/React.createElement("span", {
     className: "mono"
   }, "Frame ", iterIdx + 1, " / ", nFrames), /*#__PURE__*/React.createElement("span", null, "iter ", path.n_iters)))), /*#__PURE__*/React.createElement("div", {
@@ -898,23 +951,31 @@ function CalibrationLab({
   }, /*#__PURE__*/React.createElement("div", {
     className: "glass p-5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider mb-3"
+    className: "text-xs text-faint uppercase tracking-wider mb-3"
   }, "Live parameter estimates"), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 gap-3"
   }, /*#__PURE__*/React.createElement(Badge, {
-    label: "\u03B2 (infection)",
+    label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\beta"
+    }), " (infection)"),
     value: fmt(currentFrame?.beta, 4),
     color: "#ef4444"
   }), /*#__PURE__*/React.createElement(Badge, {
-    label: "\u03B3 (recovery)",
+    label: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tex, {
+      math: "\\\\gamma"
+    }), " (recovery)"),
     value: fmt(currentFrame?.gamma, 4),
     color: "#34d399"
   }), /*#__PURE__*/React.createElement(Badge, {
-    label: "N_eff",
+    label: /*#__PURE__*/React.createElement(Tex, {
+      math: "N_{\\\\text{eff}}"
+    }),
     value: currentFrame?.N_eff ? fmtMil(currentFrame.N_eff) : '—',
     color: "#60a5fa"
   }), /*#__PURE__*/React.createElement(Badge, {
-    label: "R\u2080 = \u03B2/\u03B3",
+    label: /*#__PURE__*/React.createElement(Tex, {
+      math: "R_0 = \\\\beta/\\\\gamma"
+    }),
     value: fmt(currentFrame?.R0, 3),
     color: "#38bdf8",
     big: true
@@ -925,7 +986,7 @@ function CalibrationLab({
   }, fmt(currentFrame?.f, 4)))), /*#__PURE__*/React.createElement("div", {
     className: "glass p-5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider mb-2"
+    className: "text-xs text-faint uppercase tracking-wider mb-2"
   }, "Convergence"), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
     height: 140
@@ -970,7 +1031,7 @@ function CalibrationLab({
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between mb-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider"
+    className: "text-xs text-faint uppercase tracking-wider"
   }, "Parameter-space trajectory"), /*#__PURE__*/React.createElement("div", {
     className: "text-ink font-medium"
   }, "\u03B2 \u2013 \u03B3 plane (all methods overlaid)")), /*#__PURE__*/React.createElement("div", {
@@ -1161,7 +1222,7 @@ function FailureExplorer({
   }, /*#__PURE__*/React.createElement("div", {
     className: "glass p-5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider mb-3"
+    className: "text-xs text-faint uppercase tracking-wider mb-3"
   }, "Failure case explorer"), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap gap-2 mb-3"
   }, cases.map(k => /*#__PURE__*/React.createElement("button", {
@@ -1243,7 +1304,7 @@ function FailureExplorer({
   })())), /*#__PURE__*/React.createElement("div", {
     className: "glass p-5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider mb-3"
+    className: "text-xs text-faint uppercase tracking-wider mb-3"
   }, "Time-window robustness"), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap gap-2 mb-3"
   }, windows?.map((w, i) => /*#__PURE__*/React.createElement("button", {
@@ -1275,7 +1336,7 @@ function FailureExplorer({
       fontSize: 9,
       fill: '#8ea2c6'
     },
-    tickFormatter: d => d.slice(5),
+    tickFormatter: d => formatDateShort(d),
     interval: 15
   }), /*#__PURE__*/React.createElement(YAxis, {
     stroke: "#4d5f82",
@@ -1322,7 +1383,9 @@ function FailureExplorer({
     className: "text-ink"
   }, fmtMil(activeWin.N_eff))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     className: "text-faint"
-  }, "R\u2080"), " ", /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Tex, {
+    math: "R_0"
+  })), " ", /*#__PURE__*/React.createElement("span", {
     className: "text-accent2"
   }, fmt(activeWin.R0, 3)))))))));
 }
@@ -1357,7 +1420,7 @@ function AllMethodsConvergence({
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between mb-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] text-faint uppercase tracking-wider"
+    className: "text-xs text-faint uppercase tracking-wider"
   }, "All methods overlaid"), /*#__PURE__*/React.createElement("div", {
     className: "text-ink font-medium"
   }, "Objective f(x) vs iteration \u2014 same start, same data")), /*#__PURE__*/React.createElement("div", {
